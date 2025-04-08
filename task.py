@@ -1,72 +1,74 @@
-# --------------------------------------------
-# Student Performance Data Analysis Project
-# --------------------------------------------
-
-# 1. Import Required Libraries
+# Import libraries
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-%matplotlib inline
 
-# 2. Load the Dataset
-df = pd.read_csv("student-mat.csv")
-print("First 5 rows of the dataset:")
+# Load the dataset
+df = pd.read_csv(r"C:\Users\hp\Downloads\archive (1)\StudentPerformanceFactors.csv")  # <-- Replace with your filename if different
+
+# Display first few rows
+print("First 5 rows:")
 print(df.head())
 
-# 3. Initial Data Exploration
-print("\nMissing values:\n", df.isnull().sum())
-print("\nData types:\n", df.dtypes)
-print("\nDataset shape (rows, columns):", df.shape)
+# Data summary
+print("\nDataset Info:")
+print(df.info())
 
-# 4. Data Cleaning
+print("\nMissing values per column:")
+print(df.isnull().sum())
+
+# Drop duplicates
 df = df.drop_duplicates()
-print("Shape after removing duplicates:", df.shape)
+print(f"\nShape after removing duplicates: {df.shape}")
 
-# 5. Data Analysis
+# Descriptive statistics
+print("\nSummary Statistics:")
+print(df.describe())
 
-# Q1: Average final grade (G3)
-avg_g3 = df["G3"].mean()
-print(f"\nAverage final grade (G3): {avg_g3:.2f}")
+# Gender-wise average Exam Score
+gender_avg = df.groupby('Gender')['Exam_Score'].mean()
+print("\nAverage Exam Score by Gender:")
+print(gender_avg)
 
-# Q2: Number of students scoring above 15 in G3
-high_scorers = df[df["G3"] > 15].shape[0]
-print(f"Number of students with G3 > 15: {high_scorers}")
+# Students scoring above 85
+high_scores = df[df['Exam_Score'] > 85]
+print(f"\nNumber of students scoring above 85: {high_scores.shape[0]}")
 
-# Q3: Correlation between study time and G3
-correlation = df["studytime"].corr(df["G3"])
-print(f"Correlation between study time and final grade (G3): {correlation:.2f}")
+# Correlation matrix
+corr_matrix = df.corr(numeric_only=True)
+print("\nCorrelation Matrix:")
+print(corr_matrix['Exam_Score'].sort_values(ascending=False))
 
-# Q4: Average final grade by gender
-avg_by_gender = df.groupby("sex")["G3"].mean()
-print("\nAverage final grade (G3) by gender:")
-print(avg_by_gender)
-
-# 6. Data Visualizations
-
-# Histogram of Final Grades
+# Visualization 1: Exam Score Distribution
 plt.figure(figsize=(8, 5))
-plt.hist(df["G3"], bins=15, color='skyblue', edgecolor='black')
-plt.title("Distribution of Final Grades (G3)")
-plt.xlabel("Final Grade (G3)")
-plt.ylabel("Number of Students")
+plt.hist(df['Exam_Score'], bins=10, color='mediumseagreen', edgecolor='black')
+plt.title('Distribution of Exam Scores')
+plt.xlabel('Exam Score')
+plt.ylabel('Number of Students')
 plt.grid(True)
 plt.show()
 
-# Scatter Plot: Study Time vs Final Grade
+# Visualization 2: Study Hours vs Exam Score
 plt.figure(figsize=(8, 5))
-sns.scatterplot(x="studytime", y="G3", data=df)
-plt.title("Study Time vs Final Grade (G3)")
-plt.xlabel("Study Time (hours/week)")
-plt.ylabel("Final Grade (G3)")
+sns.scatterplot(data=df, x='Hours_Studied', y='Exam_Score', hue='Gender')
+plt.title('Hours Studied vs Exam Score')
+plt.xlabel('Hours Studied')
+plt.ylabel('Exam Score')
 plt.grid(True)
 plt.show()
 
-# Bar Chart: Average G3 by Gender
-plt.figure(figsize=(6, 5))
-sns.barplot(x=avg_by_gender.index, y=avg_by_gender.values, palette="pastel")
-plt.title("Average Final Grade (G3) by Gender")
-plt.xlabel("Gender")
-plt.ylabel("Average G3")
+# Visualization 3: Average Exam Score by Gender
+plt.figure(figsize=(6, 4))
+gender_avg.plot(kind='bar', color=['skyblue', 'lightpink'])
+plt.title('Average Exam Score by Gender')
+plt.ylabel('Average Exam Score')
+plt.xticks(rotation=0)
 plt.grid(True)
+plt.show()
+
+# Visualization 4: Heatmap of Correlation Matrix
+plt.figure(figsize=(14, 10))
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f")
+plt.title('Correlation Matrix Heatmap')
 plt.show()
